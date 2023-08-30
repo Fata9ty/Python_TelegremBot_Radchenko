@@ -60,26 +60,23 @@ def delete_note():
 
 
 def main():
-    print('Добро пожаловать в Заметки. Введите номер пункта меню для навигации')
-    navigation = input('Создать заметку - 1, Прочитать заметку - 2, Обновить заметку - 3, Удалить заметку - 4, '
-                       'Посмотреть журнал - 5:')
-    if navigation == '1':
-        create_note()
-        main()
-    elif navigation== '2':
-        read_note()
-        main()
-    elif navigation== '3':
-        edit_note()
-        main()
-    elif navigation == '4':
-        delete_note()
-        main()
-    elif navigation == '5':
-        read_log()
-        main()
-    else:
-        print('Выход из Заметок')
+    while True:
+        print('Добро пожаловать в Заметки. Введите номер пункта меню для навигации')
+        navigation = input('Создать заметку - 1, Прочитать заметку - 2, Обновить заметку - 3, Удалить заметку - 4, '
+                            'Посмотреть журнал - 5:')
+        if navigation == '1':
+            create_note()
+        elif navigation== '2':
+            read_note()
+        elif navigation== '3':
+            edit_note()
+        elif navigation == '4':
+            delete_note()
+        elif navigation == '5':
+            read_log()
+        else:
+            print('Выход из Заметок')
+            return False
 
 main()
 
