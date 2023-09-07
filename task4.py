@@ -1,6 +1,6 @@
 import datetime
-from os.path import isfile
-from os import remove
+from os.path import isfile, getsize
+from os import remove, listdir
 
 now = datetime.datetime.now()
 
@@ -58,22 +58,30 @@ def delete_note():
     else:
         print(f'Файла с названием {note_for_delete} не имеется в списке заметок')
 
+def display_notes():
+    notes_unsorted = [note for note in listdir() if note.endswith(".txt")]
+    notes_sorted = sorted([note for note in notes_unsorted])
+    for note in notes_sorted:
+        with open(note, "r") as note_for_read:
+            print(f'Название заметки: {note} \n Содержимое заметки: {note_for_read.read()} \n Окончание заметки \n')
 
 def main():
     while True:
         print('Добро пожаловать в Заметки. Введите номер пункта меню для навигации')
         navigation = input('Создать заметку - 1, Прочитать заметку - 2, Обновить заметку - 3, Удалить заметку - 4, '
-                            'Посмотреть журнал - 5:')
+                            'Посмотреть журнал - 5, Отобразить заметки - 6:')
         if navigation == '1':
             create_note()
-        elif navigation== '2':
+        elif navigation == '2':
             read_note()
-        elif navigation== '3':
+        elif navigation == '3':
             edit_note()
         elif navigation == '4':
             delete_note()
         elif navigation == '5':
             read_log()
+        elif navigation == '6':
+            display_notes()
         else:
             print('Выход из Заметок')
             return False
