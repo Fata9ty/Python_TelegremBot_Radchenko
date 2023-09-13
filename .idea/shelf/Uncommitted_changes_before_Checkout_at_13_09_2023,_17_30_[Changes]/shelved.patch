@@ -1,0 +1,44 @@
+Index: task5.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import datetime\nfrom os.path import isfile, getsize\nfrom os import remove, listdir\n\nnow = datetime.datetime.now()\n\n\ndef build_note(note_name, note_text):\n    with open(note_name, \"w\") as new_note:\n        new_note.write(note_text + \"\\n\" + \"\\n\" + str(now.strftime(\"%d-%m-%Y %H:%M\")))\n    print(f'Заметка {note_name} успешно создана {str(now.strftime(\"%d-%m-%Y %H:%M\"))}')\n    with open('note_log.txt', 'a') as log:\n        log.writelines(f'Заметка {note_name} успешно создана {str(now.strftime(\"%d-%m-%Y %H:%M\"))}' + '\\n')\n\n\ndef edit_note():\n    note_for_edit = input(\"Введите название заметки для изменения:\")\n    if isfile(note_for_edit):\n        with open(note_for_edit, \"r\") as note:\n            print('Содержимое заметки:%s%s' % ('\\n', note.read()))\n    else:\n        print(f'Файла с названием {note_for_edit} не имеется в списке заметок')\n        return\n    new_text = input(\"Введите новый текст заметки:\")\n    with open(note_for_edit, \"w\") as edit_note:\n            edit_note.write(new_text + \"\\n\" + \"\\n\" + str(now.strftime(\"%d-%m-%Y %H:%M\")))\n    with open('note_log.txt', 'a') as log:\n        log.writelines(f'Заметка {note_for_edit} успешно изменена {str(now.strftime(\"%d-%m-%Y %H:%M\"))}' + '\\n')\n\n\ndef create_note():\n    note_name = input(\"Введите название заметки:\")\n    note_text = input(\"Напишите заметку:\")\n    build_note(note_name, note_text)\n\n\ndef read_note():\n    note_for_read = input(\"Введите название заметки для просмотра:\")\n    if isfile(note_for_read):\n        with open(note_for_read, \"r\") as note:\n            print('Содержимое заметки:%s%s' % ('\\n', note.read()))\n    else:\n        print(f'Файла с названием {note_for_read} не имеется в списке заметок')\n\n\ndef read_log():\n    with open(\"note_log.txt\", \"r\") as log:\n        print(f'Журнал действий: \\n{log.read()}')\n\n\ndef delete_note():\n    note_for_delete = input(\"Введите название заметки для удаления:\")\n    if isfile(note_for_delete):\n        remove(note_for_delete)\n        print(f'Заметка {note_for_delete} успешно удалена')\n        with open('note_log.txt', 'a') as log:\n            log.writelines(f'Заметка {note_for_delete} успешно удалена {str(now.strftime(\"%d-%m-%Y %H:%M\"))}' + '\\n')\n    else:\n        print(f'Файла с названием {note_for_delete} не имеется в списке заметок')\n\ndef display_notes():\n    notes_unsorted = [note for note in listdir() if note.endswith(\".txt\")]\n    notes_sorted = sorted([note for note in notes_unsorted])\n    for note in notes_sorted:\n        with open(note, \"r\") as note_for_read:\n            print(f'Название заметки: {note} \\n Содержимое заметки: {note_for_read.read()} \\n Окончание заметки \\n')\n\ndef main():\n    while True:\n        print('Добро пожаловать в Заметки. Введите номер пункта меню для навигации')\n        navigation = input('Создать заметку - 1, Прочитать заметку - 2, Обновить заметку - 3, Удалить заметку - 4, '\n                            'Посмотреть журнал - 5, Отобразить заметки - 6:')\n        if navigation == '1':\n            create_note()\n        elif navigation == '2':\n            read_note()\n        elif navigation == '3':\n            edit_note()\n        elif navigation == '4':\n            delete_note()\n        elif navigation == '5':\n            read_log()\n        elif navigation == '6':\n            display_notes()\n        else:\n            print('Выход из Заметок')\n            return False\n\nmain()\n\n\n
+===================================================================
+diff --git a/task5.py b/task5.py
+--- a/task5.py	
++++ b/task5.py	
+@@ -1,6 +1,8 @@
+ import datetime
+-from os.path import isfile, getsize
++from os.path import isfile
+ from os import remove, listdir
++import os
++
+ 
+ now = datetime.datetime.now()
+ 
+@@ -58,12 +60,13 @@
+     else:
+         print(f'Файла с названием {note_for_delete} не имеется в списке заметок')
+ 
+-def display_notes():
++def display_sorted_notes():
+     notes_unsorted = [note for note in listdir() if note.endswith(".txt")]
+-    notes_sorted = sorted([note for note in notes_unsorted])
++    notes_sorted = sorted(notes_unsorted,
++                           key=lambda x: os.stat(x).st_size)
+     for note in notes_sorted:
+         with open(note, "r") as note_for_read:
+-            print(f'Название заметки: {note} \n Содержимое заметки: {note_for_read.read()} \n Окончание заметки \n')
++            print(f'Название заметки: {note} \n Содержимое заметки: \n {note_for_read.read()} \n Окончание заметки \n')
+ 
+ def main():
+     while True:
+@@ -81,7 +84,7 @@
+         elif navigation == '5':
+             read_log()
+         elif navigation == '6':
+-            display_notes()
++            display_sorted_notes()
+         else:
+             print('Выход из Заметок')
+             return False

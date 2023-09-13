@@ -1,6 +1,7 @@
 import datetime
 from os.path import isfile, getsize
 from os import remove, listdir
+import os
 
 now = datetime.datetime.now()
 
@@ -58,9 +59,10 @@ def delete_note():
     else:
         print(f'Файла с названием {note_for_delete} не имеется в списке заметок')
 
-def display_notes():
+def display_sorted_notes():
     notes_unsorted = [note for note in listdir() if note.endswith(".txt")]
-    notes_sorted = sorted([note for note in notes_unsorted])
+    notes_sorted = sorted(notes_unsorted,
+                        key=lambda x: os.stat(x).st_size)
     for note in notes_sorted:
         with open(note, "r") as note_for_read:
             print(f'Название заметки: {note} \n Содержимое заметки: {note_for_read.read()} \n Окончание заметки \n')
@@ -81,7 +83,7 @@ def main():
         elif navigation == '5':
             read_log()
         elif navigation == '6':
-            display_notes()
+            display_sorted_notes()
         else:
             print('Выход из Заметок')
             return False

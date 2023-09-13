@@ -1,0 +1,188 @@
+Index: task4.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import datetime\nfrom os.path import isfile, getsize\nfrom os import remove, listdir\n\nnow = datetime.datetime.now()\n\n\ndef build_note(note_name, note_text):\n    with open(note_name, \"w\") as new_note:\n        new_note.write(note_text + \"\\n\" + \"\\n\" + str(now.strftime(\"%d-%m-%Y %H:%M\")))\n    print(f'Заметка {note_name} успешно создана {str(now.strftime(\"%d-%m-%Y %H:%M\"))}')\n    with open('note_log.txt', 'a') as log:\n        log.writelines(f'Заметка {note_name} успешно создана {str(now.strftime(\"%d-%m-%Y %H:%M\"))}' + '\\n')\n\n\ndef edit_note():\n    note_for_edit = input(\"Введите название заметки для изменения:\")\n    if isfile(note_for_edit):\n        with open(note_for_edit, \"r\") as note:\n            print('Содержимое заметки:%s%s' % ('\\n', note.read()))\n    else:\n        print(f'Файла с названием {note_for_edit} не имеется в списке заметок')\n        return\n    new_text = input(\"Введите новый текст заметки:\")\n    with open(note_for_edit, \"w\") as edit_note:\n            edit_note.write(new_text + \"\\n\" + \"\\n\" + str(now.strftime(\"%d-%m-%Y %H:%M\")))\n    with open('note_log.txt', 'a') as log:\n        log.writelines(f'Заметка {note_for_edit} успешно изменена {str(now.strftime(\"%d-%m-%Y %H:%M\"))}' + '\\n')\n\n\ndef create_note():\n    note_name = input(\"Введите название заметки:\")\n    note_text = input(\"Напишите заметку:\")\n    build_note(note_name, note_text)\n\n\ndef read_note():\n    note_for_read = input(\"Введите название заметки для просмотра:\")\n    if isfile(note_for_read):\n        with open(note_for_read, \"r\") as note:\n            print('Содержимое заметки:%s%s' % ('\\n', note.read()))\n    else:\n        print(f'Файла с названием {note_for_read} не имеется в списке заметок')\n\n\ndef read_log():\n    with open(\"note_log.txt\", \"r\") as log:\n        print(f'Журнал действий: \\n{log.read()}')\n\n\ndef delete_note():\n    note_for_delete = input(\"Введите название заметки для удаления:\")\n    if isfile(note_for_delete):\n        remove(note_for_delete)\n        print(f'Заметка {note_for_delete} успешно удалена')\n        with open('note_log.txt', 'a') as log:\n            log.writelines(f'Заметка {note_for_delete} успешно удалена {str(now.strftime(\"%d-%m-%Y %H:%M\"))}' + '\\n')\n    else:\n        print(f'Файла с названием {note_for_delete} не имеется в списке заметок')\n\ndef display_notes():\n    notes_unsorted = [note for note in listdir() if note.endswith(\".txt\")]\n    notes_sorted = sorted([note for note in notes_unsorted])\n    for note in notes_sorted:\n        with open(note, \"r\") as note_for_read:\n            print(f'Название заметки: {note} \\n Содержимое заметки: {note_for_read.read()} \\n Окончание заметки \\n')\n\ndef main():\n    while True:\n        print('Добро пожаловать в Заметки. Введите номер пункта меню для навигации')\n        navigation = input('Создать заметку - 1, Прочитать заметку - 2, Обновить заметку - 3, Удалить заметку - 4, '\n                            'Посмотреть журнал - 5, Отобразить заметки - 6:')\n        if navigation == '1':\n            create_note()\n        elif navigation == '2':\n            read_note()\n        elif navigation == '3':\n            edit_note()\n        elif navigation == '4':\n            delete_note()\n        elif navigation == '5':\n            read_log()\n        elif navigation == '6':\n            display_notes()\n        else:\n            print('Выход из Заметок')\n            return False\n\nmain()\n\n\n
+===================================================================
+diff --git a/task4.py b/task4.py
+--- a/task4.py	
++++ b/task4.py	
+@@ -9,23 +9,29 @@
+     with open(note_name, "w") as new_note:
+         new_note.write(note_text + "\n" + "\n" + str(now.strftime("%d-%m-%Y %H:%M")))
+     print(f'Заметка {note_name} успешно создана {str(now.strftime("%d-%m-%Y %H:%M"))}')
+-    with open('note_log.txt', 'a') as log:
+-        log.writelines(f'Заметка {note_name} успешно создана {str(now.strftime("%d-%m-%Y %H:%M"))}' + '\n')
++    with open("note_log.txt", "a") as log:
++        log.writelines(
++            f'Заметка {note_name} успешно создана {str(now.strftime("%d-%m-%Y %H:%M"))}'
++            + "\n"
++        )
+ 
+ 
+ def edit_note():
+     note_for_edit = input("Введите название заметки для изменения:")
+     if isfile(note_for_edit):
+         with open(note_for_edit, "r") as note:
+-            print('Содержимое заметки:%s%s' % ('\n', note.read()))
++            print("Содержимое заметки:%s%s" % ("\n", note.read()))
+     else:
+-        print(f'Файла с названием {note_for_edit} не имеется в списке заметок')
++        print(f"Файла с названием {note_for_edit} не имеется в списке заметок")
+         return
+     new_text = input("Введите новый текст заметки:")
+     with open(note_for_edit, "w") as edit_note:
+-            edit_note.write(new_text + "\n" + "\n" + str(now.strftime("%d-%m-%Y %H:%M")))
+-    with open('note_log.txt', 'a') as log:
+-        log.writelines(f'Заметка {note_for_edit} успешно изменена {str(now.strftime("%d-%m-%Y %H:%M"))}' + '\n')
++        edit_note.write(new_text + "\n" + "\n" + str(now.strftime("%d-%m-%Y %H:%M")))
++    with open("note_log.txt", "a") as log:
++        log.writelines(
++            f'Заметка {note_for_edit} успешно изменена {str(now.strftime("%d-%m-%Y %H:%M"))}'
++            + "\n"
++        )
+ 
+ 
+ def create_note():
+@@ -38,54 +44,62 @@
+     note_for_read = input("Введите название заметки для просмотра:")
+     if isfile(note_for_read):
+         with open(note_for_read, "r") as note:
+-            print('Содержимое заметки:%s%s' % ('\n', note.read()))
++            print("Содержимое заметки:%s%s" % ("\n", note.read()))
+     else:
+-        print(f'Файла с названием {note_for_read} не имеется в списке заметок')
++        print(f"Файла с названием {note_for_read} не имеется в списке заметок")
+ 
+ 
+ def read_log():
+     with open("note_log.txt", "r") as log:
+-        print(f'Журнал действий: \n{log.read()}')
++        print(f"Журнал действий: \n{log.read()}")
+ 
+ 
+ def delete_note():
+     note_for_delete = input("Введите название заметки для удаления:")
+     if isfile(note_for_delete):
+         remove(note_for_delete)
+-        print(f'Заметка {note_for_delete} успешно удалена')
+-        with open('note_log.txt', 'a') as log:
+-            log.writelines(f'Заметка {note_for_delete} успешно удалена {str(now.strftime("%d-%m-%Y %H:%M"))}' + '\n')
++        print(f"Заметка {note_for_delete} успешно удалена")
++        with open("note_log.txt", "a") as log:
++            log.writelines(
++                f'Заметка {note_for_delete} успешно удалена {str(now.strftime("%d-%m-%Y %H:%M"))}'
++                + "\n"
++            )
+     else:
+-        print(f'Файла с названием {note_for_delete} не имеется в списке заметок')
++        print(f"Файла с названием {note_for_delete} не имеется в списке заметок")
++
+ 
+ def display_notes():
+     notes_unsorted = [note for note in listdir() if note.endswith(".txt")]
+     notes_sorted = sorted([note for note in notes_unsorted])
+     for note in notes_sorted:
+         with open(note, "r") as note_for_read:
+-            print(f'Название заметки: {note} \n Содержимое заметки: {note_for_read.read()} \n Окончание заметки \n')
++            print(
++                f"Название заметки: {note} \n Содержимое заметки: {note_for_read.read()} \n Окончание заметки \n"
++            )
++
+ 
+ def main():
+     while True:
+-        print('Добро пожаловать в Заметки. Введите номер пункта меню для навигации')
+-        navigation = input('Создать заметку - 1, Прочитать заметку - 2, Обновить заметку - 3, Удалить заметку - 4, '
+-                            'Посмотреть журнал - 5, Отобразить заметки - 6:')
+-        if navigation == '1':
++        print("Добро пожаловать в Заметки. Введите номер пункта меню для навигации")
++        navigation = input(
++            "Создать заметку - 1, Прочитать заметку - 2, Обновить заметку - 3, Удалить заметку - 4, "
++            "Посмотреть журнал - 5, Отобразить заметки - 6:"
++        )
++        if navigation == "1":
+             create_note()
+-        elif navigation == '2':
++        elif navigation == "2":
+             read_note()
+-        elif navigation == '3':
++        elif navigation == "3":
+             edit_note()
+-        elif navigation == '4':
++        elif navigation == "4":
+             delete_note()
+-        elif navigation == '5':
++        elif navigation == "5":
+             read_log()
+-        elif navigation == '6':
++        elif navigation == "6":
+             display_notes()
+         else:
+-            print('Выход из Заметок')
++            print("Выход из Заметок")
+             return False
+ 
++
+ main()
+-
+-
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"AutoImportSettings\">\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\n  </component>\n  <component name=\"ChangeListManager\">\n    <list default=\"true\" id=\"c0396dc4-8c76-447b-a095-0cec14ccf6ca\" name=\"Changes\" comment=\"task2 was completed\">\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/note_log.txt\" beforeDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/task3.py\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/task4.py\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/task3.txt\" beforeDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/task31.txt\" beforeDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/task32.txt\" beforeDir=\"false\" />\n    </list>\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\n  </component>\n  <component name=\"FileTemplateManagerImpl\">\n    <option name=\"RECENT_TEMPLATES\">\n      <list>\n        <option value=\"Python Script\" />\n      </list>\n    </option>\n  </component>\n  <component name=\"Git.Settings\">\n    <option name=\"RECENT_BRANCH_BY_REPOSITORY\">\n      <map>\n        <entry key=\"$PROJECT_DIR$\" value=\"task3\" />\n      </map>\n    </option>\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\n  </component>\n  <component name=\"GitHubPullRequestSearchHistory\">{\n  &quot;lastFilter&quot;: {\n    &quot;state&quot;: &quot;OPEN&quot;\n  }\n}</component>\n  <component name=\"GithubPullRequestsUISettings\">\n    <option name=\"selectedUrlAndAccountId\">\n      <UrlAndAccount>\n        <option name=\"accountId\" value=\"ef0c8d6b-8d23-49c2-953d-e278191acef2\" />\n        <option name=\"url\" value=\"https://github.com/Fata9ty/Python_TelegremBot_Radchenko\" />\n      </UrlAndAccount>\n    </option>\n  </component>\n  <component name=\"MarkdownSettingsMigration\">\n    <option name=\"stateVersion\" value=\"1\" />\n  </component>\n  <component name=\"ProjectId\" id=\"2Ui3okdIcS9PzyYz5ay7taQNGqu\" />\n  <component name=\"ProjectLevelVcsManager\" settingsEditedManually=\"true\" />\n  <component name=\"ProjectViewState\">\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\n    <option name=\"showLibraryContents\" value=\"true\" />\n  </component>\n  <component name=\"PropertiesComponent\">{\n  &quot;keyToString&quot;: {\n    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,\n    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;\n  }\n}</component>\n  <component name=\"RecentsManager\">\n    <key name=\"MoveFile.RECENT_KEYS\">\n      <recent name=\"$PROJECT_DIR$\" />\n      <recent name=\"$PROJECT_DIR$/Note\" />\n    </key>\n  </component>\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\n  <component name=\"TaskManager\">\n    <task id=\"LOCAL-00001\" summary=\"task1 was completed\">\n      <created>1693321426239</created>\n      <option name=\"number\" value=\"00001\" />\n      <option name=\"presentableId\" value=\"LOCAL-00001\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1693321426239</updated>\n    </task>\n    <task id=\"LOCAL-00002\" summary=\"task2 was completed\">\n      <created>1693324465025</created>\n      <option name=\"number\" value=\"00002\" />\n      <option name=\"presentableId\" value=\"LOCAL-00002\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1693324465025</updated>\n    </task>\n    <task id=\"LOCAL-00003\" summary=\"task2 was completed\">\n      <created>1693389762413</created>\n      <option name=\"number\" value=\"00003\" />\n      <option name=\"presentableId\" value=\"LOCAL-00003\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1693389762413</updated>\n    </task>\n    <task id=\"LOCAL-00004\" summary=\"task2 was completed\">\n      <created>1693395767922</created>\n      <option name=\"number\" value=\"00004\" />\n      <option name=\"presentableId\" value=\"LOCAL-00004\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1693395767922</updated>\n    </task>\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\n      <changelist id=\"c0396dc4-8c76-447b-a095-0cec14ccf6ca\" name=\"Changes\" comment=\"task2 was completed\" />\n      <created>1693408750905</created>\n      <option name=\"number\" value=\"Default\" />\n      <option name=\"presentableId\" value=\"Default\" />\n      <updated>1693408750905</updated>\n    </task>\n    <option name=\"localTasksCounter\" value=\"5\" />\n    <servers />\n  </component>\n  <component name=\"Vcs.Log.Tabs.Properties\">\n    <option name=\"TAB_STATES\">\n      <map>\n        <entry key=\"MAIN\">\n          <value>\n            <State>\n              <option name=\"FILTERS\">\n                <map>\n                  <entry key=\"branch\">\n                    <value>\n                      <list>\n                        <option value=\"origin/task4\" />\n                      </list>\n                    </value>\n                  </entry>\n                </map>\n              </option>\n            </State>\n          </value>\n        </entry>\n      </map>\n    </option>\n  </component>\n  <component name=\"VcsManagerConfiguration\">\n    <MESSAGE value=\"task1 was completed\" />\n    <MESSAGE value=\"task2 was completed\" />\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"task2 was completed\" />\n  </component>\n</project>
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	
++++ b/.idea/workspace.xml	
+@@ -4,13 +4,9 @@
+     <option name="autoReloadType" value="SELECTIVE" />
+   </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="c0396dc4-8c76-447b-a095-0cec14ccf6ca" name="Changes" comment="task2 was completed">
++    <list default="true" id="c0396dc4-8c76-447b-a095-0cec14ccf6ca" name="Changes" comment="task4 was completed 07.09.2023">
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/note_log.txt" beforeDir="false" />
+-      <change beforePath="$PROJECT_DIR$/task3.py" beforeDir="false" afterPath="$PROJECT_DIR$/task4.py" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/task3.txt" beforeDir="false" />
+-      <change beforePath="$PROJECT_DIR$/task31.txt" beforeDir="false" />
+-      <change beforePath="$PROJECT_DIR$/task32.txt" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/task4.py" beforeDir="false" afterPath="$PROJECT_DIR$/task4.py" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+@@ -47,6 +43,9 @@
+   </component>
+   <component name="MarkdownSettingsMigration">
+     <option name="stateVersion" value="1" />
++  </component>
++  <component name="ProblemsViewState">
++    <option name="selectedTabId" value="CurrentFile" />
+   </component>
+   <component name="ProjectId" id="2Ui3okdIcS9PzyYz5ay7taQNGqu" />
+   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+@@ -103,7 +102,14 @@
+       <option name="presentableId" value="Default" />
+       <updated>1693408750905</updated>
+     </task>
+-    <option name="localTasksCounter" value="5" />
++    <task id="LOCAL-00005" summary="task4 was completed 07.09.2023">
++      <created>1694090148205</created>
++      <option name="number" value="00005" />
++      <option name="presentableId" value="LOCAL-00005" />
++      <option name="project" value="LOCAL" />
++      <updated>1694090148205</updated>
++    </task>
++    <option name="localTasksCounter" value="6" />
+     <servers />
+   </component>
+   <component name="Vcs.Log.Tabs.Properties">
+@@ -132,6 +138,7 @@
+   <component name="VcsManagerConfiguration">
+     <MESSAGE value="task1 was completed" />
+     <MESSAGE value="task2 was completed" />
+-    <option name="LAST_COMMIT_MESSAGE" value="task2 was completed" />
++    <MESSAGE value="task4 was completed 07.09.2023" />
++    <option name="LAST_COMMIT_MESSAGE" value="task4 was completed 07.09.2023" />
+   </component>
+ </project>
+\ No newline at end of file
