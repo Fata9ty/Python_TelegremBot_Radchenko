@@ -4,13 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c0396dc4-8c76-447b-a095-0cec14ccf6ca" name="Changes" comment="task2 was completed">
+    <list default="true" id="335f6e66-afa6-4b6e-b160-279c022280ad" name="Changes" comment="task5 complited">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/note_log.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/task3.py" beforeDir="false" afterPath="$PROJECT_DIR$/task4.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/task3.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/task31.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/task32.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/task4.py" beforeDir="false" afterPath="$PROJECT_DIR$/task4.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

@@ -59,9 +59,8 @@ def delete_note():
         print(f'Файла с названием {note_for_delete} не имеется в списке заметок')
 
 def display_notes():
-    notes_unsorted = [note for note in listdir() if note.endswith(".txt")]
-    notes_sorted = sorted([note for note in notes_unsorted])
-    for note in notes_sorted:
+    notes_list = [note for note in listdir() if note.endswith(".txt")]
+    for note in notes_list:
         with open(note, "r") as note_for_read:
             print(f'Название заметки: {note} \n Содержимое заметки: {note_for_read.read()} \n Окончание заметки \n')
 
