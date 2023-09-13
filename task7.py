@@ -2,6 +2,12 @@ import datetime
 from os.path import isfile, getsize
 from os import remove, listdir
 import os
+import telegram
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from secrets import API_TOKEN
+import asyncio
+
+updater = Updater(token=API_TOKEN)
 
 now = datetime.datetime.now()
 
@@ -9,15 +15,13 @@ now = datetime.datetime.now()
 def build_note(note_name, note_text):
     try:
         with open(note_name, "w") as new_note:
-            new_note.write(note_text + "\n" + "\n" + str(now.strftime("%d-%m-%Y %H:%M")))
+            new_note.write(note_text)
         print(f'Заметка {note_name} успешно создана {str(now.strftime("%d-%m-%Y %H:%M"))}')
-        with open('note_log.txt', 'a') as log:
-            log.writelines(f'Заметка {note_name} успешно создана {str(now.strftime("%d-%m-%Y %H:%M"))}' + '\n')
     except:
         print("Произошла ошибка в функции build_note.")
 
 
-def edit_note():
+def edit_note(note_for_edit, new_text):
     try:
         note_for_edit = input("Введите название заметки для изменения:")
         if isfile(note_for_edit):
@@ -34,8 +38,18 @@ def edit_note():
     except:
         print("Произошла ошибка в функции edit_note.")
 
+def edit_note_handler(update, context):
+    try:
+        new_text = update.message.text
+        note_for_edit = update.message.chat_id
+        edit_note(new_text, note_for_edit)
+        context.bot.send_message(chat_id=update.message.chat_id, text=f"Заметка {note_for_edit} изменена.")
+    except:
+        context.bot.send_message(chat_id=update.message.chat_id, text="Произошла ошибка.")
 
-def create_note():
+updater.dispatcher.add_handler(CommandHandler('edit', edit_note_handler))
+
+def create_note(note_name, note_text):
     try:
         note_name = input("Введите название заметки:")
         note_text = input("Напишите заметку:")
@@ -43,7 +57,18 @@ def create_note():
     except:
         print("Произошла ошибка в функции create_note.")
 
-def read_note():
+def create_note_handler(update, context):
+    try:
+        note_name = update.message.chat_id
+        note_text = update.message.text
+        create_note(note_name, note_text)
+        context.bot.send_message(chat_id=update.message.chat_id, text=f"Заметка {note_name} создана.")
+    except:
+        context.bot.send_message(chat_id=update.message.chat_id, text="Произошла ошибка.")
+
+updater.dispatcher.add_handler(CommandHandler('create', create_note_handler))
+
+def read_note(note_for_read):
     try:
         note_for_read = input("Введите название заметки для просмотра:")
         if isfile(note_for_read):
@@ -54,6 +79,15 @@ def read_note():
     except:
         print("Произошла ошибка в функции read_note.")
 
+def read_note_handler(update, context):
+    try:
+        note_for_read = update.message.chat_id
+        read_note(note_for_read)
+    except:
+        context.bot.send_message(chat_id=update.message.chat_id, text="Произошла ошибка.")
+
+updater.dispatcher.add_handler(CommandHandler('read', read_note_handler))
+
 def read_log():
     try:
         with open("note_log.txt", "r") as log:
@@ -61,7 +95,25 @@ def read_log():
     except:
         print("Произошла ошибка в функции read_log.")
 
-def delete_note():
+def read_log_handler(update, context):
+    try:
+        read_log()
+    except:
+        context.bot.send_message(chat_id=update.message.chat_id, text="Произошла ошибка.")
+
+updater.dispatcher.add_handler(CommandHandler('read_log', read_log_handler))
+
+def delete_note_handler(update, context):
+    try:
+        note_for_delete = update.message.chat_id
+        delete_note(note_for_delete)
+        context.bot.send_message(chat_id=update.message.chat_id, text=f"Заметка {note_for_delete} удалена.")
+    except:
+        context.bot.send_message(chat_id=update.message.chat_id, text="Произошла ошибка.")
+
+updater.dispatcher.add_handler(CommandHandler('delete', delete_note_handler))
+
+def delete_note(note_for_delete):
     try:
         note_for_delete = input("Введите название заметки для удаления:")
         if isfile(note_for_delete):
@@ -74,6 +126,15 @@ def delete_note():
     except:
         print("Произошла ошибка в функции delete_note.")
 
+
+def display_sorted_notes_handler(update, context):
+    try:
+        display_sorted_notes()
+    except:
+        context.bot.send_message(chat_id=update.message.chat_id, text="Произошла ошибка.")
+
+updater.dispatcher.add_handler(CommandHandler('display', display_sorted_notes_handler))
+
 def display_sorted_notes():
     try:
         notes_unsorted = [note for note in listdir() if note.endswith(".txt")]
@@ -85,7 +146,11 @@ def display_sorted_notes():
     except:
         print("Произошла ошибка в функции display_sorted_notes.")
 
-def main():
+
+
+updater.start_polling()
+
+"""def main():
     try:
         while True:
             print('Добро пожаловать в Заметки. Введите номер пункта меню для навигации')
@@ -109,4 +174,4 @@ def main():
     except:
         print("Произошла ошибка в функции main.")
 
-main()
+main()"""
