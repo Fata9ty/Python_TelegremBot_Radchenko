@@ -62,9 +62,9 @@ def tic_tac_toe():
             if not draw:
                 break
             player = 'O' if player == 'X' else 'X'
-            restart = input("Хотите сыграть еще раз? (y/n) ")
-            if restart.lower() != "y":
-                break
+        restart = input("Хотите сыграть еще раз? (y/n) ")
+        if restart.lower() != "y":
+            break
 
 if __name__ == '__main__':
     new_game = tic_tac_toe()
