@@ -1,36 +1,78 @@
 import logging
 import re
-from secrets import TOKEN
+from secrets import TOKEN, DATABASE, USER, PASSWORD
 import datetime
 from telegram import ReplyKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler
+import psycopg2
+from psycopg2.extras import RealDictCursor
 
+
+class Database:
+
+    def __new__(cls, *args, **kwargs):
+        if not hasattr(cls, 'instance'):
+            cls.instance = super().__new__(cls)
+            return cls.instance
+
+    def __init__(self, host, port, database, user, password, autocommit=False):
+
+        self.connection = psycopg2.connect(
+            host=host,
+            port=port,
+            database=database,
+            user=user,
+            password=password,
+        )
+        if autocommit:
+            self.connection.autocommit = True
+        self.cursor = self.connection.cursor(cursor_factory=RealDictCursor)
+
+    def select(self, query, varz):
+
+        self.cursor.execute(query, varz)
+        res = self.cursor.fetchall()
+        return res
+
+    def post(self, query, varz):
+
+        self.cursor.execute(query, varz)
+        if not self.connection.autocommit:
+            self.connection.commit()
+
+
+db = Database(host='localhost', port=5432, database=DATABASE, user=USER, password=PASSWORD)
 
 now = datetime.datetime.now()
 
+
 class Calendar:
-    def __init__(self):
+
+    def __init__(self, db):
+
         self.events = {}
 
-
     def create_event(
-            self,
-            event_name,
-            event_date,
-            event_time,
-            event_details):
-        try:
-            event_id = len(self.events) + 1
-            event = {
-                "id": event_id,
-                "name": event_name,
-                "date": event_date,
-                "time": event_time,
-                "details": event_details   }
-            self.events[event_id] = event
-            return event_id
-        except:
-            print("Произошла ошибка в функции create_event.")
+
+        self,
+        event_name,
+        event_date,
+        event_time,
+        event_details):
+
+        data = db.select('select max(id) as mx from events', varz=None)
+        data = [dict(row) for row in data]
+        all_ids = data[0].get('mx')
+        event_id = all_ids + 1
+        event = {
+            "id": event_id,
+            "name": event_name,
+            "date": event_date,
+            "time": event_time,
+            "details": event_details}
+        db.post("insert into events (ID, NAME, DATE, TIME, DETAILS) values (%s, %s, %s, %s, %s)", (event_id, event_name, event_date, event_time, event_details))
+        self.events[event_id] = event
+        return event_id
 
     def edit_event(self, event_id, event_name, event_date, event_time, event_details):
         try:
@@ -54,7 +96,7 @@ class Calendar:
             print("Произошла ошибка в функции delete_event.")
 
 
-calendar = Calendar()
+calendar = Calendar(db)
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
@@ -62,6 +104,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 SET_NAME, SET_DATE, SET_TIME, SET_DETAILS, SET_DELETE = map(chr, range(5))
+print(db.select('select id from events', varz=None))
 
 
 def start(update, context):
@@ -71,12 +114,14 @@ def start(update, context):
     except:
         print("Произошла ошибка в функции start.")
 
+
 def set_event(update, context):
     try:
         update.message.reply_text("Введите название события")
         return SET_NAME
     except:
         print("Произошла ошибка в функции set_event.")
+
 
 def name(update, context):
     try:
@@ -86,6 +131,7 @@ def name(update, context):
     except:
         print("Произошла ошибка в функции name.")
 
+
 def details(update, context):
     try:
         context.user_data['details'] = update.message.text
@@ -93,6 +139,7 @@ def details(update, context):
         return SET_DATE
     except:
         print("Произошла ошибка в функции details.")
+
 
 def date_question(update, context):
     try:
@@ -105,51 +152,53 @@ def date_question(update, context):
             update.message.reply_text("Неправильный формат даты, введите дату в формате: ДД-ММ-ГГГГ")
             return SET_DATE
     except:
-         print("Произошла ошибка в функции date_question.")
+        print("Произошла ошибка в функции date_question.")
+
 
 def time_question(update, context):
-    try:
-        user_input = update.message.text.strip()
-        if re.match(r'^\d{2}:\d{2}$', user_input):
-            time_str = user_input
+    user_input = update.message.text.strip()
+    if re.match(r'^\d{2}:\d{2}$', user_input):
+        time_str = user_input
 
-            calendar.create_event(
-                event_name=context.user_data['name'],
-                event_date=context.user_data['date'],
-                event_time=time_str,
-                event_details=context.user_data['details']
-            )
-            update.message.reply_text("Событие успешно создано")
-            return ConversationHandler.END
-        else:
-            update.message.reply_text("Время указано в неправильном формате")
-            return SET_TIME
-    except:
-        print("Произошла ошибка в функции time_question.")
+        calendar.create_event(
+            event_name=context.user_data['name'],
+            event_date=context.user_data['date'],
+            event_time=time_str,
+            event_details=context.user_data['details']
+        )
+        update.message.reply_text("Событие успешно создано")
+    else:
+        update.message.reply_text("Время указано в неправильном формате")
+        return SET_TIME
+
+
+
 
 def list_of_events(update, context):
     try:
-        for event in calendar.events:
-            context.bot.send_message(chat_id=update.message.chat_id, text=f'Всего событий: {len(calendar.events)}\n'
-                  f'Номер события: {calendar.events[event]["id"]}\n'
-                  f'Название события: {calendar.events[event]["name"]}\n'
-                  f'Дата события: {calendar.events[event]["date"]}\n'
-                  f'Время события: {calendar.events[event]["time"]}\n'
-                  f'Описание события: {calendar.events[event]["details"]}\n')
-            return ConversationHandler.END
+        events = db.select("select * from events", varz=None)
+        context.bot.send_message(chat_id=update.message.chat_id, text=f'Данные о событиях: {events}')
+        return ConversationHandler.END
     except:
         print("Произошла ошибка в функции list_of_events.")
 
+
 def delete_events(update, context):
-    list_of_events(update, context)
-    update.message.reply_text("Введите номер удаляемого события")
-    return SET_DELETE
+    try:
+        list_of_events(update, context)
+        update.message.reply_text("Введите номер удаляемого события")
+        return SET_DELETE
+    except:
+        print("Произошла ошибка в функции delete_events.")
 
 def delete_handler(update, context):
-    selected_event = update.message.text
-    calendar.delete_event(selected_event)
-    update.message.reply_text("Событие успешно удалено")
-    return ConversationHandler.END
+    try:
+        selected_event = update.message.text
+        db.post('delete * from events where id=%s', selected_event)
+        update.message.reply_text("Событие успешно удалено")
+        return ConversationHandler.END
+    except:
+        print("Произошла ошибка в функции delete_handler.")
 
 
 def main():
@@ -176,4 +225,6 @@ def main():
 
     updater.start_polling()
     updater.idle()
+
+
 main()
