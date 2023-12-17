@@ -126,8 +126,16 @@ END = ConversationHandler.END
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
-        reply_markup = ReplyKeyboardMarkup([['/set', '/list'], ['/edit', '/delete']])
-        await update.message.reply_text("Что вы намереваетесь сделать?", reply_markup=reply_markup)
+        chat_id = update.message.chat_id
+        user = db.select(f"select * from users where CHAT_ID={chat_id}", varz=None)
+        json_user_info = json.dumps(user, ensure_ascii=False, indent=4, default=str)
+        if json_user_info == "[]":
+            reply_markup = ReplyKeyboardMarkup([['/register']])
+            await update.message.reply_text("Зарегистрируйтесь", reply_markup=reply_markup)
+        else:
+            await update.message.reply_text(f"Добро пожаловать {json_user_info}\n\n")
+            reply_markup = ReplyKeyboardMarkup([['/set', '/list'], ['/edit', '/delete']])
+            await update.message.reply_text("Что вы намереваетесь сделать?", reply_markup=reply_markup)
     except:
         print("Произошла ошибка в функции start.")
 
@@ -277,7 +285,7 @@ async def list_of_events(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else:
             await context.bot.send_message(chat_id=update.message.chat_id, text=f'Данные о событиях: {json_events}')
     except:
-        print("Произошла ошибка в функции delete_events.")
+        print("Произошла ошибка в функции list_of_events.")
 
 
 async def delete_events(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -298,6 +306,17 @@ async def delete_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except:
         print("Произошла ошибка в функции delete_handler.")
 
+async def register(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    try:
+        chat_id = update.message.chat_id
+        first_name = update.message.chat.first_name
+        last_name = update.message.chat.last_name
+        username = update.message.chat.username
+        db.post("insert into users (FIRST_NAME, LAST_NAME, USERNAME, CHAT_ID) values (%s, %s, %s, %s)",
+                (first_name, last_name, username, int(chat_id)))
+        await update.message.reply_text(f"Пользователь {first_name} {last_name} aka {username} зарегистрирован под № {chat_id}")
+    except:
+        print("Произошла ошибка в функции register.")
 
 def main():
     application = Application.builder().token(TOKEN).build()
@@ -340,8 +359,11 @@ def main():
     application.add_handler(CommandHandler('list', list_of_events))
     application.add_handler(CommandHandler('delete', delete_events))
     application.add_handler(CommandHandler('edit', edit_event_handler))
+    application.add_handler(CommandHandler('register', register))
     application.add_handler(conv_handler)
     application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 
 main()
+
+
