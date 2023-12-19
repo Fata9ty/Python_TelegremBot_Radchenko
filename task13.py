@@ -8,6 +8,7 @@ from psycopg2.extras import RealDictCursor
 from telegram import ReplyKeyboardMarkup, Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ConversationHandler, ContextTypes
 
+from Django_TelegremBot_Radchenko.Radchenko_Calendar.models import BotStatistics
 from secrets import TOKEN, DATABASE, USER, PASSWORD
 
 
@@ -193,6 +194,11 @@ async def time_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 event_details=context.user_data['details'],
                 chat_id=current_chat_id,
             )
+            BotStatistics.objects.create(date=datetime.now().date(), user_count=0, event_count=0, edited_events=0,
+                                         cancelled_events=0)
+            stat = BotStatistics.objects.filter(date=datetime.now().date()).get()
+            stat.event_count += 1
+            stat.save()
             await update.message.reply_text("Событие успешно создано")
             return END
         else:
@@ -265,6 +271,11 @@ async def edit_time_question(update: Update, context: ContextTypes.DEFAULT_TYPE)
                 event_time=time_str,
                 event_details=context.user_data['details'],
             )
+            BotStatistics.objects.create(date=datetime.now().date(), user_count=0, event_count=0, edited_events=0,
+                                         cancelled_events=0)
+            stat = BotStatistics.objects.filter(date=datetime.now().date()).get()
+            stat.edited_events += 1
+            stat.save()
             await update.message.reply_text("Событие успешно отредактировано")
             return END
 
@@ -301,6 +312,11 @@ async def delete_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         selected_event = int(update.message.text)
         db.post(f'delete from events where id={selected_event}', varz=None)
+        BotStatistics.objects.create(date=datetime.now().date(), user_count=0, event_count=0, edited_events=0,
+                                     cancelled_events=0)
+        stat = BotStatistics.objects.filter(date=datetime.now().date()).get()
+        stat.cancelled_events += 1
+        stat.save()
         await update.message.reply_text(f"Событие под номером: {selected_event} успешно удалено")
         return END
     except:
@@ -314,6 +330,11 @@ async def register(update: Update, context: ContextTypes.DEFAULT_TYPE):
         username = update.message.chat.username
         db.post("insert into users (FIRST_NAME, LAST_NAME, USERNAME, CHAT_ID) values (%s, %s, %s, %s)",
                 (first_name, last_name, username, int(chat_id)))
+        BotStatistics.objects.create(date=datetime.now().date(), user_count=0, event_count=0, edited_events=0,
+                                     cancelled_events=0)
+        stat = BotStatistics.objects.filter(date=datetime.now().date()).get()
+        stat.user_count += 1
+        stat.save()
         await update.message.reply_text(f"Пользователь {first_name} {last_name} aka {username} зарегистрирован под № {chat_id}")
     except:
         print("Произошла ошибка в функции register.")
