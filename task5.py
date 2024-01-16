@@ -62,7 +62,7 @@ def delete_note():
 def display_sorted_notes():
     notes_unsorted = [note for note in listdir() if note.endswith(".txt")]
     notes_sorted = sorted(notes_unsorted,
-                        key=lambda x: os.stat(x).st_size)
+                        key=lambda x: os.stat(x).st_size, reverse=True)
     for note in notes_sorted:
         with open(note, "r") as note_for_read:
             print(f'Название заметки: {note} \n Содержимое заметки: {note_for_read.read()} \n Окончание заметки \n')
