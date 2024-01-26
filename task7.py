@@ -7,7 +7,6 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from secrets import API_TOKEN
 import asyncio
 
-updater = Updater(token=API_TOKEN)
 
 now = datetime.datetime.now()
 
@@ -47,7 +46,6 @@ def edit_note_handler(update, context):
     except:
         context.bot.send_message(chat_id=update.message.chat_id, text="Произошла ошибка.")
 
-updater.dispatcher.add_handler(CommandHandler('edit', edit_note_handler))
 
 def create_note(note_name, note_text):
     try:
@@ -66,7 +64,6 @@ def create_note_handler(update, context):
     except:
         context.bot.send_message(chat_id=update.message.chat_id, text="Произошла ошибка.")
 
-updater.dispatcher.add_handler(CommandHandler('create', create_note_handler))
 
 def read_note(note_for_read):
     try:
@@ -86,7 +83,6 @@ def read_note_handler(update, context):
     except:
         context.bot.send_message(chat_id=update.message.chat_id, text="Произошла ошибка.")
 
-updater.dispatcher.add_handler(CommandHandler('read', read_note_handler))
 
 def read_log():
     try:
@@ -101,7 +97,6 @@ def read_log_handler(update, context):
     except:
         context.bot.send_message(chat_id=update.message.chat_id, text="Произошла ошибка.")
 
-updater.dispatcher.add_handler(CommandHandler('read_log', read_log_handler))
 
 def delete_note_handler(update, context):
     try:
@@ -111,7 +106,6 @@ def delete_note_handler(update, context):
     except:
         context.bot.send_message(chat_id=update.message.chat_id, text="Произошла ошибка.")
 
-updater.dispatcher.add_handler(CommandHandler('delete', delete_note_handler))
 
 def delete_note(note_for_delete):
     try:
@@ -133,7 +127,6 @@ def display_sorted_notes_handler(update, context):
     except:
         context.bot.send_message(chat_id=update.message.chat_id, text="Произошла ошибка.")
 
-updater.dispatcher.add_handler(CommandHandler('display', display_sorted_notes_handler))
 
 def display_sorted_notes():
     try:
@@ -146,32 +139,24 @@ def display_sorted_notes():
     except:
         print("Произошла ошибка в функции display_sorted_notes.")
 
+def menu(update, context):
+    update.message.reply_text(
+        'Type please choose command from list: "/menu", "/edit", "/create", "/read", "/read_log", "/delete", "/display"'
+        )
 
 
-updater.start_polling()
+def main():
+    updater = Updater(token=API_TOKEN)
 
-"""def main():
-    try:
-        while True:
-            print('Добро пожаловать в Заметки. Введите номер пункта меню для навигации')
-            navigation = input('Создать заметку - 1, Прочитать заметку - 2, Обновить заметку - 3, Удалить заметку - 4, '
-                               'Посмотреть журнал - 5, Отобразить заметки - 6:')
-            if navigation == '1':
-                create_note()
-            elif navigation == '2':
-                read_note()
-            elif navigation == '3':
-                edit_note()
-            elif navigation == '4':
-                delete_note()
-            elif navigation == '5':
-                read_log()
-            elif navigation == '6':
-                display_sorted_notes()
-            else:
-                print('Выход из Заметок')
-                return False
-    except:
-        print("Произошла ошибка в функции main.")
+    updater.dispatcher.add_handler(CommandHandler('menu', menu))
+    updater.dispatcher.add_handler(CommandHandler('edit', edit_note_handler))
+    updater.dispatcher.add_handler(CommandHandler('create', create_note_handler))
+    updater.dispatcher.add_handler(CommandHandler('read', read_note_handler))
+    updater.dispatcher.add_handler(CommandHandler('read_log', read_log_handler))
+    updater.dispatcher.add_handler(CommandHandler('delete', delete_note_handler))
+    updater.dispatcher.add_handler(CommandHandler('display', display_sorted_notes_handler))
 
-main()"""
+    updater.start_polling()
+    updater.idle()
+    
+main()
