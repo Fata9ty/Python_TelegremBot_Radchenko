@@ -60,7 +60,7 @@ def delete_note():
 
 def display_notes():
     notes_list = [note for note in listdir() if note.endswith(".txt")]
-    reversed_notes_list = sorted(notes_list, key=lambda x: os.stat(x).st_size, reverse=True)
+    reversed_notes_list = sorted(notes_list, key=lambda x: os.stat(x).st_size)
     for note in reversed_notes_list:
         with open(note, "r") as note_for_read:
             print(f'Название заметки: {note} \n Содержимое заметки: {note_for_read.read()} \n Окончание заметки \n')
